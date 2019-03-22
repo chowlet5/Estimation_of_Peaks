@@ -79,6 +79,7 @@ for i=1:rsize(1)
     % resample CDF more coarsely for more efficient parameter estimation:
     n_coarse = min([n 1000]);
     CDF_coarse = linspace(1/(n_coarse+1),n_coarse/(n_coarse+1),n_coarse);
+    
     X_coarse = interp1(CDF_X, sort_X, CDF_coarse);
     
     % Estimate shape parameter of gamma distribution from coarse CDF:
@@ -219,6 +220,7 @@ for i=1:rsize(1)
     % Compute the mean zero upcrossing rate of process y(t) with standardized
     % normal probability distribution.
     X_u = mean(sort_X( find(abs(CDF_X - 0.5) == min(abs(CDF_X - 0.5))) )); % upcrossing level
+    length(find( X(2:end)>=X_u & X(1:end-1)<X_u ))
     Nupcross = length(find( X(2:end)>=X_u & X(1:end-1)<X_u )); % number of upcrossings
     if Nupcross<100
         warning(['The number of median upcrossings is low (' num2str(Nupcross) ...

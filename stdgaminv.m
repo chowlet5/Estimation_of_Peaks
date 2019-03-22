@@ -22,6 +22,8 @@ function x = stdgaminv( p, gam )
 abs_tol = 10^-3; % absolute error tolerance
 rel_tol = 10^-3; % relative error tolerance
 
+
+
 % Range in "gam" is limited by polynomial fits to max and min x values:
 if gam<0.1 || gam>150
     error('The shape parameter gamma must be between 0.1 and 150');
@@ -34,8 +36,10 @@ x_max = 10.^polyval([-0.009486738 0.03376901 0.1151316 0.2358172 1.139717],log10
 % increase x_max iteratively if a higher cumulative probability is required:
 max_iter = 200;   % maximum number of iterations
 iter = 0;
+
 while gammainc(x_max,gam)<max(p)
     iter = iter+1;
+    
     if iter>max_iter
         error(['Maximum specified probability is too high: ' num2str(max(p))]);
     end
