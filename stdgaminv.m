@@ -58,6 +58,8 @@ while gammainc(x_min,gam)>min(p)
     x_min = 0.1*x_min;
 end
 
+
+
 % assemble a list of values and probabilities for interpolation:
 n_check = 1000;
 x_check = linspace(x_min,x_max,n_check);

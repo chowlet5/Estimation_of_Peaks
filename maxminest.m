@@ -189,8 +189,10 @@ for i=1:rsize(1)
     mean_s_norm_low = mean(s_norm_low);
     mean_X_low = mean(X_low);
     % linear regression:
+    
+    
     sigma_low = (sum(s_norm_low(:).*X_low(:))-n_low*mean_s_norm_low*mean_X_low)/(sum(s_norm_low.^2)-n_low*mean_s_norm_low^2);
-    mu_low = mean_X_low - sigma_low*mean_s_norm_low;
+    mu_low = mean_X_low - sigma_low*mean_s_norm_low
     X_low_fit = mu_low + sigma_low*s_norm_low;
     % Probability Plot Correlation Coefficient:
     norm_PPCC = sigma_low*std(s_norm_low)/std(X_low);
@@ -220,7 +222,7 @@ for i=1:rsize(1)
     % Compute the mean zero upcrossing rate of process y(t) with standardized
     % normal probability distribution.
     X_u = mean(sort_X( find(abs(CDF_X - 0.5) == min(abs(CDF_X - 0.5))) )); % upcrossing level
-    length(find( X(2:end)>=X_u & X(1:end-1)<X_u ))
+    
     Nupcross = length(find( X(2:end)>=X_u & X(1:end-1)<X_u )); % number of upcrossings
     if Nupcross<100
         warning(['The number of median upcrossings is low (' num2str(Nupcross) ...
@@ -231,7 +233,10 @@ for i=1:rsize(1)
 
     % Perform the mapping procedure to compute the CDF of largest peak
     % for X(t) from y(t)
+    
+    
     X_max = stdgaminv(CDF_y,gam)*beta + mu;
+    
     X_min = stdnorminv(1-CDF_y)*sigma_low + mu_low;
     
     % Compute the Mean of the Peaks for process X(t)
