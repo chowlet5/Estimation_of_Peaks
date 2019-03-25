@@ -190,9 +190,6 @@ for i=1:rsize(1)
     mean_X_low = mean(X_low);
     % linear regression:
     sigma_low = (sum(s_norm_low(:).*X_low(:))-n_low*mean_s_norm_low*mean_X_low)/(sum(s_norm_low.^2)-n_low*mean_s_norm_low^2);
-    
-    
-    
     mu_low = mean_X_low - sigma_low*mean_s_norm_low;
     X_low_fit = mu_low + sigma_low*s_norm_low;
     % Probability Plot Correlation Coefficient:
