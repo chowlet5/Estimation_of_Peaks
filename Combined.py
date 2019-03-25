@@ -42,14 +42,15 @@ def stdgaminv(p,gam):
         if current_iter>max_iter:
             raise ValueError('Minimum specified probability is too low:{}'.format(min(p)))
         else:
-            x_max *=0.1
+            x_min *=0.1
 
     n_check = 1000
     x_check = np.linspace(x_min,x_max,n_check)
+    
     p_check = special.gammainc(x_check,gam)
 
     
-
+    
     
 
     p_check, ind_u = np.unique(p_check,return_index = True)
@@ -59,6 +60,8 @@ def stdgaminv(p,gam):
     f = interpolate.interp1d(p_check,x_check,fill_value='extrapolate')
 
     x_est = f(p)
+    
+
     max_iter = 15
     current_iter= 0
     x_step = np.ones(x_est.shape)
@@ -83,14 +86,14 @@ def stdgaminv(p,gam):
 
         x_est = x_interp
     
-    x = x_est.reshape(p.shape)
+    x = x_est.reshape(p.size)
 
     return x
 
 def stdnorminv(p):
     import numpy as np
     import scipy.special as special
-    x = np.sqrt(2)*special.erfcinv(2*p)
+    x = -1*np.sqrt(2)*special.erfcinv(2*p)
 
     return x
 
@@ -123,10 +126,10 @@ def maxminest (record, dur_ratio = 1):
         rec_size = rsize[0]
     
 
-    max_est = np.zeros((rsize[0],1))
-    min_est = np.zeros((rsize[0],1))
-    max_std = np.zeros((rsize[0],1))
-    min_std = np.zeros((rsize[0],1))
+    max_est = np.zeros((rec_size,1))
+    min_est = np.zeros((rec_size,1))
+    max_std = np.zeros((rec_size,1))
+    min_std = np.zeros((rec_size,1))
 
     for i in np.arange(rec_size):
         if rec_size == 1:
@@ -229,6 +232,7 @@ def maxminest (record, dur_ratio = 1):
         X_split = f(CDF_split)
 
         ind_low = np.where(sort_X<X_split)
+        
         X_low = sort_X[ind_low]
         n_low = len(X_low)
         CDF_low = CDF_X[ind_low]
@@ -238,9 +242,15 @@ def maxminest (record, dur_ratio = 1):
         mean_X_low = np.mean(X_low)
 
         # linear regression:
+        
 
-        sigma_low = (np.sum(np.power(s_norm_low,X_low))-n_low*mean_s_norm_low*mean_X_low)/(np.sum(np.power(s_norm_low,2)-n_low*mean_X_low**2))
-        mu_low=mean_X_low - sigma_low*s_norm_low
+        
+        
+        
+        
+        sigma_low = (np.sum(np.multiply(s_norm_low,X_low))-n_low*mean_s_norm_low*mean_X_low)/(np.sum(np.power(s_norm_low,2))-n_low*mean_s_norm_low**2)
+        
+        mu_low=mean_X_low - sigma_low*mean_s_norm_low
         X_low_fit = mu_low +sigma_low*s_norm_low
 
         # Probability Plot Correlation Coefficient:
@@ -260,24 +270,30 @@ def maxminest (record, dur_ratio = 1):
             print('The record may be too short for accurate peak estimation.')
         
         y_pk = np.sqrt(2.0*np.log(np.divide(-dur_ratio*Nupcross,np.log(cdf_pk))))
+        
         CDF_y = stdnormcdf(y_pk)
-
+        
+        
         # Perform the mapping procedure to compute the CDF of largest peak for X(t) from y(t)
 
         X_max = stdgaminv(CDF_y,gam) * beta + mu
         
-        print(sigma_low)
-        X_min = stdnorminv(1-CDF_y)*sigma_low+mu_low
-
+        
+        
+        X_min = np.multiply(stdnorminv(1-CDF_y),sigma_low)
+        
+        X_min+=mu_low
         pdf_pk = np.multiply(np.multiply(-y_pk,cdf_pk),np.log(cdf_pk))
-
+        
+        
+        
         # Compute the Mean of the Peaks for process X(t)
 
-        if np.sign(skew_x>0):
-            max_est[i] = np.trapz(y_pk,(np.multiply(pdf_pk,X_max)))
-            min_est[i] = np.trapz(y_pk,(np.multiply(pdf_pk,X_min)))
-            max_std[i] = np.trapz(y_pk,(np.multiply(pdf_pk,np.power(-X_min-max_est[i],2))))
-            max_std[i] = np.trapz(y_pk,(np.multiply(pdf_pk,np.power(-X_max-min_est[i],2))))
+        if np.sign(skew_x)>0:
+            max_est[i] = np.trapz((np.multiply(pdf_pk,X_max)),y_pk)
+            min_est[i] = np.trapz((np.multiply(pdf_pk,X_min)),y_pk)
+            max_std[i] = np.trapz((np.multiply(pdf_pk,np.power(-X_min-max_est[i],2))),y_pk)
+            max_std[i] = np.trapz((np.multiply(pdf_pk,np.power(-X_max-min_est[i],2))),y_pk)
 
     return max_est, min_est, max_std, min_std
 
