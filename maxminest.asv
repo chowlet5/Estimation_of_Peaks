@@ -101,20 +101,12 @@ for i=1:rsize(1)
         count = count+1;
         % Obtain the Gamma Distribution Parameters for current gamma:
         s_gam_j = stdgaminv(CDF_coarse(:), gamma_list(j)); % standard variate
-        mean_s_gam_j = mean(s_gam_j)
-        
-        
+        mean_s_gam_j = mean(s_gam_j);
         % linear regression:
         beta_coarse_list(j) = (sum(s_gam_j(:).*X_coarse(:))-n_coarse*mean_s_gam_j*mean_X_coarse)/(sum(s_gam_j.^2)-n_coarse*mean_s_gam_j^2);
-        
-        mu_coarse_list(j) = mean_X_coarse - beta_coarse_list(j)*mean_s_gam_j;
-        
         disp(beta_coarse_list(j))
+        mu_coarse_list(j) = mean_X_coarse - beta_coarse_list(j)*mean_s_gam_j;
         disp(mu_coarse_list(j))
-            
-        
-        
-        
         % Probability Plot Correlation Coefficient:
         gam_PPCC_list(j) = beta_coarse_list(j)*std(s_gam_j)/std_X_coarse;
         
@@ -126,7 +118,6 @@ for i=1:rsize(1)
             plot(s_gam_j,X_coarse,'.',s_gam_j,X_coarse_fit_j,'-');
             title(['gamma: ' num2str(round(10*gamma_list(j))/10) '   PPCC: ' num2str(gam_PPCC_list(j))]);
         end
-        
         if gam_PPCC_list(j)==max(gam_PPCC_list)
             gam = gamma_list(j);
             gam_PPCC_max = gam_PPCC_list(j);
@@ -145,7 +136,6 @@ for i=1:rsize(1)
             % linear regression:
             beta_coarse_list(j) = (sum(s_gam_j(:).*X_coarse(:))-n_coarse*mean_s_gam_j*mean_X_coarse)/(sum(s_gam_j.^2)-n_coarse*mean_s_gam_j^2);
             mu_coarse_list(j) = mean_X_coarse - beta_coarse_list(j)*mean_s_gam_j;
-            
             % Probability Plot Correlation Coefficient:
             gam_PPCC_list(j) = beta_coarse_list(j)*std(s_gam_j)/std_X_coarse;
             X_coarse_fit_j = mu_coarse_list(j) + beta_coarse_list(j)*s_gam_j;

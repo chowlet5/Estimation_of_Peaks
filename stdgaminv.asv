@@ -56,7 +56,7 @@ end
 x_min = 10.^polyval([-0.0854665 0.866249 -3.25511 5.14328 -0.90924 -8.09135 12.3393 -5.89628],log10(gam));
 % reduce x_min iteratively if a lower cumulative probability is required:
 iter = 0;
-
+x_min = 
 while gammainc(x_min,gam)>min(p)
     iter = iter+1;
     if iter>max_iter
