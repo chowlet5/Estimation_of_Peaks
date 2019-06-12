@@ -80,6 +80,7 @@ for i=1:rsize(1)
     n_coarse = min([n 1000]);
     CDF_coarse = linspace(1/(n_coarse+1),n_coarse/(n_coarse+1),n_coarse);
     
+
     X_coarse = interp1(CDF_X, sort_X, CDF_coarse);
     
     % Estimate shape parameter of gamma distribution from coarse CDF:
@@ -96,22 +97,20 @@ for i=1:rsize(1)
     count = 0;
     % first try decreasing gamma:
     for j = n_start:-1:1
-        
-        
+                
         count = count+1;
         % Obtain the Gamma Distribution Parameters for current gamma:
         s_gam_j = stdgaminv(CDF_coarse(:), gamma_list(j)); % standard variate
-        mean_s_gam_j = mean(s_gam_j)
-        
+        mean_s_gam_j = mean(s_gam_j);
+
         
         % linear regression:
         beta_coarse_list(j) = (sum(s_gam_j(:).*X_coarse(:))-n_coarse*mean_s_gam_j*mean_X_coarse)/(sum(s_gam_j.^2)-n_coarse*mean_s_gam_j^2);
         
         mu_coarse_list(j) = mean_X_coarse - beta_coarse_list(j)*mean_s_gam_j;
         
-        disp(beta_coarse_list(j))
-        disp(mu_coarse_list(j))
-            
+        %csvwrite(strcat('mat_file_j',num2str(j),'.csv'),beta_coarse_list(j))
+        
         
         
         
@@ -129,6 +128,7 @@ for i=1:rsize(1)
         
         if gam_PPCC_list(j)==max(gam_PPCC_list)
             gam = gamma_list(j);
+
             gam_PPCC_max = gam_PPCC_list(j);
         else
             break; % stop searching once the PPCC starts to decrease
@@ -140,12 +140,14 @@ for i=1:rsize(1)
         for j = n_start+1:n_gamma
             count = count+1;
             % Obtain the Gamma Distribution Parameters for current gamma:
+            
             s_gam_j = stdgaminv(CDF_coarse(:), gamma_list(j)); % standard variate
             mean_s_gam_j = mean(s_gam_j);
+
             % linear regression:
             beta_coarse_list(j) = (sum(s_gam_j(:).*X_coarse(:))-n_coarse*mean_s_gam_j*mean_X_coarse)/(sum(s_gam_j.^2)-n_coarse*mean_s_gam_j^2);
             mu_coarse_list(j) = mean_X_coarse - beta_coarse_list(j)*mean_s_gam_j;
-            
+            %csvwrite(strcat('mat_file_j',num2str(j),'.csv'),beta_coarse_list(j))
             % Probability Plot Correlation Coefficient:
             gam_PPCC_list(j) = beta_coarse_list(j)*std(s_gam_j)/std_X_coarse;
             X_coarse_fit_j = mu_coarse_list(j) + beta_coarse_list(j)*s_gam_j;
@@ -250,7 +252,7 @@ for i=1:rsize(1)
     % for X(t) from y(t)
     X_max = stdgaminv(CDF_y,gam)*beta + mu;
     X_min = stdnorminv(1-CDF_y)*sigma_low + mu_low;
-    
+    disp(mean(beta))
     % Compute the Mean of the Peaks for process X(t)
     pdf_pk = -y_pk .* cdf_pk .* log(cdf_pk);
     

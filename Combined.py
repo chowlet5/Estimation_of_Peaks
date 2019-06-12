@@ -18,21 +18,23 @@ def stdgaminv(p,gam):
     
     x_max = 10**np.polyval([-0.009486738 ,0.03376901, 0.1151316, 0.2358172, 1.139717],math.log10(gam))
     
-   
+
     
     max_iter = 200
 
     current_iter = 0
     
-    
-    
+   
     while special.gammainc(gam,x_max)<max(p):
+        
+
         current_iter+=1
         
         if current_iter>max_iter:
             raise ValueError('Maximum specified probability is too high:{}'.format(max(p)))
         else:
-            x_max *=1.5 
+            x_max *=1.5
+            
     x_min = 10**np.polyval([-0.0854665, 0.866249, -3.25511, 5.14328, -0.90924, -8.09135, 12.3393, -5.89628],math.log10(gam))
     current_iter = 0
     
@@ -43,35 +45,43 @@ def stdgaminv(p,gam):
             raise ValueError('Minimum specified probability is too low:{}'.format(min(p)))
         else:
             x_min *=0.1
-
+    
+    
     n_check = 1000
     x_check = np.linspace(x_min,x_max,n_check)
     
-    p_check = special.gammainc(x_check,gam)
 
+    p_check = special.gammainc(gam,x_check)
+    
+    
     
     
     
 
     p_check, ind_u = np.unique(p_check,return_index = True)
-
+    
+    
     x_check = x_check[ind_u]
 
     f = interpolate.interp1d(p_check,x_check,fill_value='extrapolate')
 
     x_est = f(p)
     
-
+    
     max_iter = 15
     current_iter= 0
     x_step = np.ones(x_est.shape)
-
+    
+    
+    
     while any(abs(x_step)>abs_tol) and any(abs(np.divide(x_step,x_est)>rel_tol)):
         current_iter+=1
+        
         if current_iter>max_iter:
             break
         
-        p_est =special.gammainc(x_est,gam)
+        p_est =special.gammainc(gam,x_est)
+        
 
         p_check = np.append(p_check,p_est)
         x_check = np.append(x_check,x_est)
@@ -80,14 +90,17 @@ def stdgaminv(p,gam):
         x_check = x_check[ind_u]
 
         f = interpolate.interp1d(p_check,x_check,fill_value='extrapolate')
+        
         x_interp = f(p)
 
         x_step = x_interp-x_est
 
         x_est = x_interp
-    
+        
     x = x_est.reshape(p.size)
 
+    
+    
     return x
 
 def stdnorminv(p):
@@ -172,22 +185,32 @@ def maxminest (record, dur_ratio = 1):
         n_start = 7
 
         gamma_list = np.logspace(math.log10(gamma_min),math.log10(gamma_max),n_gamma)
+        
+
         gam_PPCC_list = np.zeros(gamma_list.shape)
         count = 0
         beta_coarse_list = np.zeros((125,1))
         mu_coarse_list =np.zeros((125,1))
         
         for j in np.arange(n_start,-1,-1):
+          
             count+=1
-
+            
+            
             s_gam_j = stdgaminv(CDF_coarse,gamma_list[j])
+            
             mean_s_gam_j = np.mean(s_gam_j)
+
             # linear regression:
-            beta_coarse_list[j]=((np.sum(np.multiply(s_gam_j,X_coarse)-n_coarse*mean_s_gam_j*mean_X_coarse))/(np.sum(np.power(s_gam_j,2)-n_coarse*mean_s_gam_j**2)))
+            
+            beta_coarse_list[j] = (np.sum(np.multiply(s_gam_j,X_coarse))-(n_coarse*mean_s_gam_j*mean_X_coarse))/(np.sum(np.power(s_gam_j,2))-(n_coarse*mean_s_gam_j**2))
+            
             mu_coarse_list[j]=(mean_X_coarse - beta_coarse_list[j]*mean_s_gam_j)
+
             #Probability Plot Correlation Coefficient:
            
-            gam_PPCC_list[j] = (beta_coarse_list[j]* np.std(s_gam_j)/std_X_coarse)
+            gam_PPCC_list[j] = (beta_coarse_list[j]*np.std(s_gam_j)/std_X_coarse)
+
             X_coarse_fit_j = mu_coarse_list[j] + beta_coarse_list[j]*s_gam_j
 
             if gam_PPCC_list[j] == max(gam_PPCC_list):
@@ -198,13 +221,15 @@ def maxminest (record, dur_ratio = 1):
         
         if gam_PPCC_list[n_start-1] < gam_PPCC_list[n_start]:
             # if the PPCC decreased with decreasing gamda, try increasing gamma: 
-            for j in np.arange(n_start+1,n_gamma+1):
+            for j in np.arange(n_start+1,n_gamma):
                 count += 1
                 # Obtain the Gamma Distribution Parameters for current gamma:
+                
                 s_gam_j = stdgaminv(CDF_coarse,gamma_list[j])   # standard variate
                 mean_s_gam_j = np.mean(s_gam_j)
                 # linear regression:
-                beta_coarse_list[j] = (np.sum(np.multiply(s_gam_j,X_coarse)-n_coarse*mean_s_gam_j*mean_X_coarse))/(np.sum(np.power(s_gam_j,2)-n_coarse*mean_s_gam_j**2))
+                beta_coarse_list[j] = (np.sum(np.multiply(s_gam_j,X_coarse))-(n_coarse*mean_s_gam_j*mean_X_coarse))/(np.sum(np.power(s_gam_j,2))-(n_coarse*mean_s_gam_j**2))
+                
                 mu_coarse_list[j] = mean_X_coarse - beta_coarse_list[j]*mean_s_gam_j
                 #Probability Plot Correlation Coefficient:
                 gam_PPCC_list[j] = beta_coarse_list[j]* np.std(s_gam_j)/std_X_coarse
@@ -219,10 +244,10 @@ def maxminest (record, dur_ratio = 1):
         s_gam = stdgaminv(CDF_X,gam)
         mean_s_gam = np.mean(s_gam)
 
-        beta = (np.sum(np.multiply(s_gam,sort_X))-n*mean_s_gam*mean_X)/np.sum(np.power(s_gam,2)-n*mean_s_gam**2)
+        beta = (np.sum(np.multiply(s_gam,sort_X))-n*mean_s_gam*mean_X)/(np.sum(np.power(s_gam,2))-n*mean_s_gam**2)
         mu = mean_X - beta*mean_s_gam
         gam_PPCC = beta*np.std(s_gam)/std_X
-
+        
         x_fit = mu +beta*s_gam
 
         # Obtain the Normal Distribution Parameters for lower portion of CDF
@@ -244,10 +269,7 @@ def maxminest (record, dur_ratio = 1):
         # linear regression:
         
 
-        
-        
-        
-        
+                
         sigma_low = (np.sum(np.multiply(s_norm_low,X_low))-n_low*mean_s_norm_low*mean_X_low)/(np.sum(np.power(s_norm_low,2))-n_low*mean_s_norm_low**2)
         
         mu_low=mean_X_low - sigma_low*mean_s_norm_low
@@ -276,9 +298,10 @@ def maxminest (record, dur_ratio = 1):
         
         # Perform the mapping procedure to compute the CDF of largest peak for X(t) from y(t)
 
-        X_max = stdgaminv(CDF_y,gam) * beta + mu
+        X_max = stdgaminv(CDF_y,gam) * beta 
+        X_max+= + mu
         
-        
+
         
         X_min = np.multiply(stdnorminv(1-CDF_y),sigma_low)
         
@@ -292,8 +315,13 @@ def maxminest (record, dur_ratio = 1):
         if np.sign(skew_x)>0:
             max_est[i] = np.trapz((np.multiply(pdf_pk,X_max)),y_pk)
             min_est[i] = np.trapz((np.multiply(pdf_pk,X_min)),y_pk)
-            max_std[i] = np.trapz((np.multiply(pdf_pk,np.power(-X_min-max_est[i],2))),y_pk)
-            max_std[i] = np.trapz((np.multiply(pdf_pk,np.power(-X_max-min_est[i],2))),y_pk)
+            max_std[i] = np.trapz((np.multiply(np.power((X_max-max_est[i]),2),pdf_pk)),y_pk)
+            min_std[i] = np.trapz((np.multiply(np.power((X_min-min_est[i]),2),pdf_pk)),y_pk)
+        else:
+            max_est[i] = np.trapz((np.multiply(pdf_pk,X_max)),y_pk)
+            min_est[i] = np.trapz((np.multiply(pdf_pk,X_min)),y_pk)
+            max_std[i] = np.trapz((np.multiply(np.power((-X_min-max_est[i]),2),pdf_pk)),y_pk)
+            min_std[i] = np.trapz((np.multiply(np.power((-X_max-min_est[i]),2),pdf_pk)),y_pk)
 
     return max_est, min_est, max_std, min_std
 

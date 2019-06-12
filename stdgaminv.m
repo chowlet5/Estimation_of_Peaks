@@ -37,11 +37,13 @@ x_max = 10.^polyval([-0.009486738 0.03376901 0.1151316 0.2358172 1.139717],log10
 
 
 
+
 % increase x_max iteratively if a higher cumulative probability is required:
 max_iter = 200;   % maximum number of iterations
 iter = 0;
 
 while gammainc(x_max,gam)<max(p)
+    
     iter = iter+1;
     
     if iter>max_iter
@@ -87,6 +89,8 @@ iter = 0;
 x_step = ones(size(x_est)); % initialize vector of step sizes
 while any(abs(x_step)>abs_tol) && any(abs(x_step./x_est)>rel_tol)
     iter = iter+1;
+    
+    
     if iter>max_iter
         warning(['Max interations reached. Max abs error: ' num2str(max(abs(x_step))) '; Max rel error: ' num2str(max(abs(x_step./x_est))) ]);
         break;
@@ -94,7 +98,6 @@ while any(abs(x_step)>abs_tol) && any(abs(x_step./x_est)>rel_tol)
 
     % compute probabilities associated with estimated values:
     p_est = gammainc(x_est,gam);
-    
     % augment the list of values and probabilities for interpolation
     p_check = [p_check(:); p_est(:)];
     x_check = [x_check(:); x_est(:)];
@@ -104,5 +107,6 @@ while any(abs(x_step)>abs_tol) && any(abs(x_step./x_est)>rel_tol)
     x_interp = interp1(p_check, x_check, p); % interpolate values
     x_step = x_interp-x_est;                 % evaluate change in interpolated values
     x_est = x_interp;                        % update estimated values
+
 end
 x = reshape(x_est,size(p));
