@@ -16,4 +16,4 @@ setup(
     license='MIT',
     description='Python package provided functions which are used to estimate peak values from time series of pressures and wind induced internal forces. The functions are based on MATLAB functions written by Joseph A. Main and Fahim Sadek.',
     # We will also need a readme eventually (there will be a warning)
-    # long_description=open('README.txt').read(),
+    long_description=open('README.txt').read()

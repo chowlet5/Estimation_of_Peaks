@@ -1,0 +1,3 @@
+Python package provided functions which are used to estimate peak values from time series of pressures and wind induced internal forces. The functions are based on MATLAB functions written by Joseph A. Main and Fahim Sadek.
+
+The functions are based on the approach described in the following paper: Sadek, F. and Simiu, E. (2002). "Peak non-Gaussian wind effects for database-assisted low-rise building design." J. Eng. Mech., 128(5), 530-539
