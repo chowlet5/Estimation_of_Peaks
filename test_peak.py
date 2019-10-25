@@ -1,5 +1,5 @@
 import numpy as np
-from peakpressure import maxminest
+from peakpressure.peakpressure import maxminest
 from matplotlib import pyplot as plt
 
 ###########
