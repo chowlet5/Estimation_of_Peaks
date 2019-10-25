@@ -179,7 +179,6 @@ def maxminest (record, dur_ratio = 1):
         
         mean_X_coarse = np.mean(X_coarse)
 
-        # std_X_coarse = np.std(X_coarse) # Original
         std_X_coarse = np.std(X_coarse, ddof=1)
 
         gamma_min = 1
@@ -212,7 +211,6 @@ def maxminest (record, dur_ratio = 1):
 
             #Probability Plot Correlation Coefficient:
            
-            # gam_PPCC_list[j] = (beta_coarse_list[j]*np.std(s_gam_j)/std_X_coarse) # Original
             gam_PPCC_list[j] = (beta_coarse_list[j]*np.std(s_gam_j,ddof=1)/std_X_coarse)
 
             X_coarse_fit_j = mu_coarse_list[j] + beta_coarse_list[j]*s_gam_j
@@ -236,40 +234,21 @@ def maxminest (record, dur_ratio = 1):
                 
                 mu_coarse_list[j] = mean_X_coarse - beta_coarse_list[j]*mean_s_gam_j
                 #Probability Plot Correlation Coefficient:
-                # gam_PPCC_list[j] = beta_coarse_list[j]* np.std(s_gam_j)/std_X_coarse # Original
                 gam_PPCC_list[j] = beta_coarse_list[j]* np.std(s_gam_j, ddof=1)/std_X_coarse
                 X_coarse_fit_j = mu_coarse_list[j] + beta_coarse_list[j]*s_gam_j
 
-                ##
-                # BLOCK needs extra indent not to break out prematurely
-                ##
                 if gam_PPCC_list[j] == max(gam_PPCC_list):
                     gam = gamma_list[j]
                     gam_PPCC_max = gam_PPCC_list[j]
                 else:
                     break
-                ##
-                # BLOCK needs extra indent
-                ##
-                
-            ##
-            # ORIGINAL
-            ##
-            # if gam_PPCC_list[j] == max(gam_PPCC_list):
-            #     gam = gamma_list[j]
-            #     gam_PPCC_max = gam_PPCC_list[j]
-            # else:
-            #     break
-            ##
-            # ORIGINAL
-            ##
+
 
         s_gam = stdgaminv(CDF_X,gam)
         mean_s_gam = np.mean(s_gam)
 
         beta = (np.sum(np.multiply(s_gam,sort_X))-n*mean_s_gam*mean_X)/(np.sum(np.power(s_gam,2))-n*mean_s_gam**2) #0.12
         mu = mean_X - beta*mean_s_gam
-        # gam_PPCC = beta*np.std(s_gam)/std_X # Original
         gam_PPCC = beta*np.std(s_gam, ddof=1)/std_X
         
         x_fit = mu +beta*s_gam
@@ -301,7 +280,6 @@ def maxminest (record, dur_ratio = 1):
 
         # Probability Plot Correlation Coefficient:
 
-        # norm_PPCC = sigma_low*np.std(s_norm_low)/np.std(X_low) # Original
         norm_PPCC = sigma_low*np.std(s_norm_low, ddof=1)/np.std(X_low, ddof=1)
 
         X_u=np.mean(sort_X[np.where(abs(CDF_X-0.5) == min(abs(CDF_X-0.5)))])
@@ -343,25 +321,8 @@ def maxminest (record, dur_ratio = 1):
             max_std[i] = np.trapz((np.multiply(np.power((X_max-max_est[i]),2),pdf_pk)),y_pk)
             min_std[i] = np.trapz((np.multiply(np.power((X_min-min_est[i]),2),pdf_pk)),y_pk)
         else:
-            ##
-            # ORIGINAL
-            ##
-            # max_est[i] = np.trapz((np.multiply(pdf_pk,X_max)),y_pk)
-            # min_est[i] = np.trapz((np.multiply(pdf_pk,X_min)),y_pk)
-            ##
-            # ORIGINAL
-            ##
-
-            ##
-            # UPDATE according to initial MATLAB -> seems to be able to robustly handle
-            # normal random as well
-            ##
             max_est[i] = -np.trapz((np.multiply(pdf_pk,X_min)),y_pk)
             min_est[i] = -np.trapz((np.multiply(pdf_pk,X_max)),y_pk)
-            ##
-            # UPDATE according to initial MATLAB -> seems to be able to robustly handle
-            # normal random as well
-            ##
 
             max_std[i] = np.trapz((np.multiply(np.power((-X_min-max_est[i]),2),pdf_pk)),y_pk)
             min_std[i] = np.trapz((np.multiply(np.power((-X_max-min_est[i]),2),pdf_pk)),y_pk)
