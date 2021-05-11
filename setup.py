@@ -11,7 +11,7 @@ setup(
     # Needed for dependencies
     install_requires=['numpy','scipy'],
     # *strongly* suggested for sharing
-    version='1.0',
+    version='1.1',
     # The license can be anything you like
     license='MIT',
     description='Python package provided functions which are used to estimate peak values from time series of pressures and wind induced internal forces. The functions are based on MATLAB functions written by Joseph A. Main and Fahim Sadek.',
