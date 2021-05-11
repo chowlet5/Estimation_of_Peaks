@@ -17,7 +17,7 @@ def maxminest (record, dur_ratio = 1):
     if len(rsize) == 1:
         rec_size = 1
     else:
-        rec_size = rsize[0]
+        rec_size = rsize[1]
     
 
     max_est = np.zeros((rec_size,1))
